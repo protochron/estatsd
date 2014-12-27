@@ -1,0 +1,2 @@
+defmodule Estatsd do
+end

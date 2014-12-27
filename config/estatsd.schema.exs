@@ -1,32 +1,32 @@
 [
   mappings: [
-    "app.carbon_port": [
-      doc: "Provide documentation for app.carbon_port here.",
-      to: "app.carbon_port",
+    "estatsd.carbon_port": [
+      doc: "Provide documentation for estatsd.carbon_port here.",
+      to: "estatsd.carbon_port",
       datatype: :integer,
       default: 2003
     ],
-    "app.carbon_host": [
-      doc: "Provide documentation for app.carbon_host here.",
-      to: "app.carbon_host",
-      datatype: :string,
-      default: nil
+    "estatsd.carbon_host": [
+      doc: "Provide documentation for estatsd.carbon_host here.",
+      to: "estatsd.carbon_host",
+      datatype: :binary,
+      default: "127.0.0.1"
     ],
-    "app.port": [
-      doc: "Provide documentation for app.port here.",
-      to: "app.port",
+    "estatsd.port": [
+      doc: "Provide documentation for estatsd.port here.",
+      to: "estatsd.port",
       datatype: :integer,
       default: 8125
     ],
-    "app.debug": [
-      doc: "Provide documentation for app.debug here.",
-      to: "app.debug",
+    "estatsd.debug": [
+      doc: "Provide documentation for estatsd.debug here.",
+      to: "estatsd.debug",
       datatype: :atom,
       default: false
     ],
-    "app.mode": [
-      doc: "Provide documentation for app.mode here.",
-      to: "app.mode",
+    "estatsd.mode": [
+      doc: "Provide documentation for estatsd.mode here.",
+      to: "estatsd.mode",
       datatype: :atom,
       default: :udp
     ]

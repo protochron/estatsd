@@ -4,7 +4,7 @@ use Mix.Config
 
 config :estatsd,
   carbon_port: 2003,
-  carbon_host: nil,
+  carbon_host: "127.0.0.1",
   port: 8125,
   debug: false,
   mode: :udp

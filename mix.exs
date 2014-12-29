@@ -5,7 +5,8 @@ defmodule Estatsd.Mixfile do
     [app: :estatsd,
      version: "0.0.1",
      elixir: "~> 1.0",
-     deps: deps]
+     deps: deps,
+     package: package]
   end
 
   def application do

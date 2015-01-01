@@ -1,7 +1,7 @@
 defmodule Estatsd.Cache do
   use GenServer
   
-  def start_link do
+  def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, HashDict.new)
   end
 
@@ -13,11 +13,16 @@ defmodule Estatsd.Cache do
     GenServer.call(server, {:get, key})
   end
 
-  def handle_call({:put, metric}, _from, state) do
-    {:reply, HashDict.update(state, metric.key, metric)}
+  def handle_call({:put, metric}, _from, metrics) do
+    if HashDict.has_key?(metrics, metric.key) do
+      updated_metric = Estatsd.Metric.update(HashDict.get(metrics, metric.key), hd(metric.all_values))
+      {:reply, HashDict.put(metrics, metric.key, updated_metric), metrics}
+    else
+      {:reply, HashDict.put(metrics, metric.key, metric), metrics}
+    end
   end
 
-  def handle_call({:get, key}, _from, state) do
-    {:reply, HashDict.get(state, key), state}
+  def handle_call({:get, key}, _from, metrics) do
+    {:reply, HashDict.get(metrics, key), metrics}
   end
 end

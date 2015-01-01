@@ -23,7 +23,10 @@ defmodule Estatsd.Metric do
         last_value: value,
         all_values: [value],
         type: type,
-        total_hits: 1
+        total_hits: 1,
+        min_value: value,
+        max_value: value,
+        median_value: value
       }
     end
 

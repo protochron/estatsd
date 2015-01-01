@@ -1,7 +1,7 @@
 defmodule Estatsd do
   use Application
 
-  @name __MODULE__
+  # Configuration options
   @mode Application.get_env(:estatsd, :mode)
   @carbon_port Application.get_env(:estatsd, :carbon_port)
   @carbon_host Application.get_env(:estatsd, :carbon_host)
@@ -9,12 +9,13 @@ defmodule Estatsd do
   @debug Application.get_env(:estatsd, :debug)
   @server_mode Application.get_env(:estatsd, :server_mode)
 
+  @doc false
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
     children = [
-      #worker(Estatsd.Cache, []),
-      #supervisor(Task.Supervisor, [[name: Estatsd.TaskSupervisor]]),
+      worker(Estatsd.Cache, [[name: Estatsd.CacheSupervisor]]),
+      supervisor(Task.Supervisor, [[name: Estatsd.TaskSupervisor]]),
       worker(Task, [Estatsd, :accept, []])
     ]
 
@@ -34,8 +35,10 @@ defmodule Estatsd do
   end
 
   def load_metric(metric_string) do
-    {key, value, type} = Estatsd.metric.parse_metric!(metric_string)
-    IO.puts key
+    {key, value, type} = Estatsd.Metric.parse_metric!(metric_string)
+    m = Estatsd.Metric.create_metric(key, value, type)
+    Estatsd.Cache.put(Estatsd.CacheSupervisor, m)
+    #IO.puts "#{inspect Estatsd.Cache}"
   end
 
 end

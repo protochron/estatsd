@@ -10,7 +10,8 @@ defmodule Estatsd.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :conform]]
+    [applications: [:logger, :conform],
+    mod: {Estatsd, []}]
   end
 
   defp deps do

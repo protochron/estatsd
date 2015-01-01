@@ -10,7 +10,6 @@ defmodule Estatsd.Server.Tcp do
   def loop_acceptor(socket) do
     {:ok, client} = :gen_tcp.accept(socket)
     serve(client)
-    #TaskSupervisor.start_child(Estatsd.TaskSupervistor, fn -> serve(client) end)
     loop_acceptor(socket)
   end
 
@@ -20,9 +19,8 @@ defmodule Estatsd.Server.Tcp do
 
   defp read_line(socket) do
     {:ok, data} = :gen_tcp.recv(socket, 0)
-    #Estatsd.Server.load_metric(data)
-    TaskSupervisor.start_child(Estatsd.TaskSupervisor, fn ->
-      Estatsd.Server.load_metric(data)
+    Task.Supervisor.start_child(Estatsd.TaskSupervisor, fn ->
+      Estatsd.load_metric(String.strip(data))
     end)
   end
 end

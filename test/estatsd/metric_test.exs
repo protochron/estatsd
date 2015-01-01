@@ -41,10 +41,13 @@ defmodule Estatsd.MetricTest do
   test "updates a metric" do
     updated_metric = Metric.update(simple_counter, 0.2)
     assert updated_metric != simple_counter
+    # You can't always assume that floating point math gives you the same value, so compare against the string representation instead
     last_value = Float.to_string(updated_metric.last_value, [decimals: 2, compact: true])
     assert last_value == "0.3"
+    median_value = Float.to_string(updated_metric.median_value, [decimals: 2])
+    assert median_value == "0.15"
+
     assert updated_metric.all_values == [0.1, 0.2]
     assert updated_metric.min_value == 0.1
-    assert updated_metric.median_value == 0.15
   end
 end

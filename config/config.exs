@@ -7,4 +7,6 @@ config :estatsd,
   carbon_host: "127.0.0.1",
   port: 8125,
   debug: false,
-  mode: :udp
+  mode: :udp,
+  server_mode: :udp
+

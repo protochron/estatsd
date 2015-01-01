@@ -38,6 +38,7 @@ defmodule Estatsd.Metric do
         min_value: min(vals),
         max_value: max(vals),
         median_value: median(vals),
+        # TODO: Use this struct
         quantiles: %Estatsd.MetricQuantile{},
         all_values: vals,
         flush_time: struct.flush_time,

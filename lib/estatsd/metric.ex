@@ -1,7 +1,9 @@
 defmodule Estatsd.Metric do
   import Estatsd.Utils
 
-  @metric_types {:counter, :gauge, :timer}
+  @metric_types %{"c" => :counter, "g" => :gauge, "t" => :timer, "s" => :set}
+  @namespace_seperator ":"
+  @type_seperator "|"
 
   defstruct key: "",
     type: :counter,
@@ -20,7 +22,8 @@ defmodule Estatsd.Metric do
       %Estatsd.Metric{key: key,
         last_value: value,
         all_values: [value],
-        type: type
+        type: type,
+        total_hits: 1
       }
     end
 
@@ -29,8 +32,8 @@ defmodule Estatsd.Metric do
       vals = struct.all_values ++ [value]
       %Estatsd.Metric{key: struct.key,
         type: struct.type,
-        total_hits: struct.total_hits,
-        last_value: struct.last_value,
+        total_hits: struct.total_hits + 1,
+        last_value: update_last_value(struct, value),
         values_per_second: struct.values_per_second,
         min_value: min(vals),
         max_value: max(vals),
@@ -42,19 +45,18 @@ defmodule Estatsd.Metric do
       }
     end
 
-    def metric_type!(type) do
-      case type do
-        "g" -> {:ok, :gauge}
-        "c" -> {:ok, :counter}
-        "t" -> {:ok, :timer}
-        _ -> {:error, "bad metric type"}
+    def update_last_value(struct, value) do
+      case struct.type do
+        :counter -> struct.last_value + value
+        _ -> value
       end
     end
 
-    def parse_metric(metric) do
-      [name, value] = String.split(metric, ":")
-      [value, type] = String.split(value, "|")
-      {:ok, type} = metric_type!(type)
-      {name, value, type}
+    def parse_metric!(metric) do
+      [name, value] = String.split(metric, @namespace_seperator)
+      [value, type] = String.split(value, @type_seperator)
+      type = Map.fetch!(@metric_types, type)
+      {float_value, _} = Float.parse(value)
+      {name, float_value, type}
     end
 end

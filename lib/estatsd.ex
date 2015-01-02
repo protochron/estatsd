@@ -38,7 +38,6 @@ defmodule Estatsd do
     {key, value, type} = Estatsd.Metric.parse_metric!(metric_string)
     m = Estatsd.Metric.create_metric(key, value, type)
     Estatsd.Cache.put(Estatsd.CacheSupervisor, m)
-    #IO.puts "#{inspect Estatsd.Cache}"
   end
 
 end

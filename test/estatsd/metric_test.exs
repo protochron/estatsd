@@ -7,7 +7,10 @@ defmodule Estatsd.MetricTest do
       last_value: 0.1,
       all_values: [0.1],
       type: :counter,
-      total_hits: 1
+      total_hits: 1,
+      max_value: 0.1,
+      min_value: 0.1,
+      median_value: 0.1
     }
   end
 

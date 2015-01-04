@@ -1,4 +1,9 @@
 defmodule Estatsd.Server.Tcp do
+  @moduledoc """
+  An implementation of a TCP server for receiving metrics.
+
+  This allows Estatsd to accept metrics over TCP.
+  """
 
   def accept(port) do
     {:ok, socket} = :gen_tcp.listen(port,

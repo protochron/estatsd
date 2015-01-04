@@ -1,4 +1,11 @@
 defmodule Estatsd.Cache do
+  @moduledoc """
+  Creates an in-memory cache for dealing with metrics.
+  
+  The cache itself is a HashDict of Estatsd.Metric structs keyed by the
+  key value of the struct. This ensures that the cache keeps track of any new metrics
+  as well as updating ones that have already been sent to the daemon.
+  """
   use GenServer
   
   def start_link(opts \\ []) do

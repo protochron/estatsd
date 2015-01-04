@@ -1,4 +1,9 @@
 defmodule Estatsd.Server.Udp do
+  @moduledoc """
+  An implementation of a UDP server for receiving metrics.
+
+  This allows Estatsd to receive metrics over UDP.
+  """
 
   def accept(port) do
     {:ok, socket} = :gen_udp.open(port,

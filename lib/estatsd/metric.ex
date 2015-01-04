@@ -1,10 +1,21 @@
 defmodule Estatsd.Metric do
+  @moduledoc """
+  Defines a metric
+
+  A metric is a struct keyed by a Graphite-compatable string. It contains a
+  list of values and metadata about those values including how often the metric
+  has been updated.
+  """
   alias Statistics, as: S
 
   @metric_types %{"c" => :counter, "g" => :gauge, "t" => :timer, "s" => :set}
   @namespace_seperator ":"
   @type_seperator "|"
 
+
+  @doc """
+  Struct definition
+  """
   defstruct key: "",
     type: :counter,
     total_hits: 0,
@@ -18,6 +29,10 @@ defmodule Estatsd.Metric do
     flush_time: 0,
     last_flushed: 0
 
+    @doc """
+    A simple way to create a metric for the first time. This is meant to be called when a
+    metric is not defined in the cache
+    """
     def create_metric(key, value, type \\ :counter) do
       %Estatsd.Metric{key: key,
         last_value: value,
@@ -30,6 +45,10 @@ defmodule Estatsd.Metric do
       }
     end
 
+    @doc """
+    Update a metric with a new value.
+    This takes care of updating the list of values with the correct metadata
+    """
     def update(struct, value) do
       # TODO: make this more efficient?
       vals = struct.all_values ++ [value]
@@ -49,6 +68,10 @@ defmodule Estatsd.Metric do
       }
     end
 
+    @doc """
+    Take care of any special cases that exist when updating the
+    last_value field of an Estatsd.Metric
+    """
     def update_last_value(struct, value) do
       case struct.type do
         :counter -> struct.last_value + value
@@ -56,6 +79,14 @@ defmodule Estatsd.Metric do
       end
     end
 
+    @doc """
+    Parse out a StatsD metric string into a tuple.
+
+    A correctly formatted string resembles the following:
+        
+        '<metric_name>:<value>|<type>'
+    Raise an exception if any of the fields are incorrect.
+    """
     def parse_metric!(metric) do
       [name, value] = String.split(metric, @namespace_seperator)
       [value, type] = String.split(value, @type_seperator)

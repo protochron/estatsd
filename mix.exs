@@ -16,7 +16,6 @@ defmodule Estatsd.Mixfile do
 
   defp deps do
     [{:conform, "~> 0.12.0"},
-     {:decimal, "~> 1.1.0"},
      {:statistics, "~> 0.2.1"}
     ]
   end

@@ -1,5 +1,5 @@
 defmodule Estatsd.Metric do
-  import Estatsd.Utils
+  alias Statistics, as: S
 
   @metric_types %{"c" => :counter, "g" => :gauge, "t" => :timer, "s" => :set}
   @namespace_seperator ":"
@@ -38,9 +38,9 @@ defmodule Estatsd.Metric do
         total_hits: struct.total_hits + 1,
         last_value: update_last_value(struct, value),
         values_per_second: struct.values_per_second,
-        min_value: min(vals),
-        max_value: max(vals),
-        median_value: median(vals),
+        min_value: Enum.min(vals),
+        max_value: Enum.max(vals),
+        median_value: S.median(vals),
         # TODO: Use this struct
         quantiles: %Estatsd.MetricQuantile{},
         all_values: vals,

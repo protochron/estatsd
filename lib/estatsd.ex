@@ -9,6 +9,10 @@ defmodule Estatsd do
   @debug Application.get_env(:estatsd, :debug)
   @server_mode Application.get_env(:estatsd, :server_mode)
 
+  ## Graphite options
+  ## Need to figure out a better way to handle this
+  @graphite_config Application.get_env(:estatsd, :graphite)
+
   @doc false
   def start(_type, _args) do
     import Supervisor.Spec, warn: false

@@ -1,2 +1,3 @@
 %{"conform": {:hex, :conform, "0.12.0"},
-  "statistics": {:hex, :statistics, "0.2.1"}}
+  "statistics": {:hex, :statistics, "0.2.1"},
+  "timex": {:hex, :timex, "0.13.3"}}

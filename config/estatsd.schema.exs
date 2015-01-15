@@ -35,7 +35,37 @@
       to: "estatsd.mode",
       datatype: :atom,
       default: :udp
-    ]
+    ],
+    "estatsd.graphite.global_prefix": [
+      doc: "Global prefix to use when sending stats to Graphite",
+      to: "estatsd.graphite.global_prefix",
+      datatype: :string,
+      default: "stats"
+    ],
+    "estatsd.graphite.prefix_counter": [
+      doc: "Graphite prefix for counter metrics",
+      to: "estatsd.graphite.prefix_counter",
+      datatype: :string,
+      default: "counters"
+    ],
+    "estatsd.graphite.prefix_timer": [
+      doc: "Graphite prefix for timer metrics",
+      to: "estatsd.graphite.prefix_timer",
+      datatype: :string,
+      default: "timers"
+    ],
+    "estatsd.graphite.prefix_gauges": [
+      doc: "Graphite prefix for gauges metrics",
+      to: "estatsd.graphite.prefix_gauges",
+      datatype: :string,
+      default: "gauges"
+    ],
+    "estatsd.graphite.prefix_set": [
+      doc: "Graphite prefix for set metrics",
+      to: "estatsd.graphite.prefix_set",
+      datatype: :string,
+      default: "sets"
+    ],
   ],
   translations: [
   ]

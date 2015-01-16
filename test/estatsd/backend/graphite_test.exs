@@ -4,16 +4,18 @@ defmodule Estatsd.Backend.GraphiteTest do
 
   alias Estatsd.Backend.Graphite
 
-  def simple_graphite do
-    %Graphite { flush_interval: 60,
-      last_flush: meta[:start_time],
-      last_exception: meta[start_time]
+  setup_all do
+    start_time = Date.convert(Date.now, :secs)
+    backend = %Graphite { flush_interval: 60,
+      last_flush: start_time,
+      last_exception: start_time
     }
+    {:ok, backend: backend, start_time: start_time}
   end
 
   test "creates a Graphite backend", meta do
     graphite = Graphite.new([flush_interval: 60])
-    assert graphite == simple_graphite
+    assert graphite == meta[:backend]
   end
 end
 

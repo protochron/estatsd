@@ -1,4 +1,5 @@
 defmodule Estatsd.Backend.Graphite do
+  use Timex
   @behaviour Estatsd.Backend
 
   # This might be too much like fake OOP.

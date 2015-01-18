@@ -27,7 +27,9 @@ defmodule Estatsd.Cache do
   def handle_call({:put, metric}, _from, metrics) do
     if HashDict.has_key?(metrics, metric.key) do
       updated_metric = Estatsd.Metric.update(HashDict.get(metrics, metric.key),
-        hd(metric.all_values)
+        hd(metric.all_values),
+        Application.get_env(:estatsd, :flush_interval),
+        Application.get_env(:estatsd, :percentages)
       )
       {:reply, metrics, HashDict.put(metrics, metric.key, updated_metric)}
     else

@@ -30,11 +30,23 @@
       datatype: :atom,
       default: :udp
     ],
+    "estatsd.percentile": [
+      doc: "The percentiles to keep track of for timers",
+      to: "estatsd.percentile",
+      datatype: :list,
+      default: [90], 
+    ],
     "estatsd.server_mode": [
       doc: "The mode to run the server under (tcp or udp)",
       to: "estatsd.mode",
       datatype: :atom,
       default: :udp
+    ],
+    "estatsd.flush_interval": [
+      doc: "The rate in milliseconds to flush to each backend",
+      to: "estatsd.flush_interval",
+      datatype: :integer,
+      default: 1000
     ],
     "estatsd.graphite.global_prefix": [
       doc: "Global prefix to use when sending stats to Graphite",

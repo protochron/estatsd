@@ -8,6 +8,7 @@ defmodule Estatsd do
   @port Application.get_env(:estatsd, :port)
   @debug Application.get_env(:estatsd, :debug)
   @server_mode Application.get_env(:estatsd, :server_mode)
+  @percentiles Application.get_env(:estatsd, :percentile)
 
   ## Graphite options
   ## Need to figure out a better way to handle this

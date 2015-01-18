@@ -3,8 +3,7 @@ defmodule Estatsd.CacheTest do
 
   setup do
     {:ok, cache} = Estatsd.Cache.start_link
-    sample_metric = Estatsd.Metric.create_metric("test.metric",
-      0.1)
+    sample_metric = Estatsd.Metric.create_metric("test.metric", 0.1)
     {:ok, cache: cache, metric: sample_metric}
   end
 
@@ -15,9 +14,9 @@ defmodule Estatsd.CacheTest do
   end
 
   test "updates a metric", %{cache: cache, metric: metric} do
-    for n <- 0..1, do: Estatsd.Cache.put(cache, metric)
+    for _ <- 0..1, do: Estatsd.Cache.put(cache, metric)
     {:ok, up_metric} = Estatsd.Cache.get(cache, "test.metric")
-    assert up_metric == Estatsd.Metric.update(metric, 0.1)
+    assert up_metric == Estatsd.Metric.update(metric, 0.1, 60, [90])
   end
 
 end

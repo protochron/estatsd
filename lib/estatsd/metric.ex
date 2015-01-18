@@ -24,7 +24,7 @@ defmodule Estatsd.Metric do
     min_value: 0.0,
     max_value: 0.0,
     median_value: 0.0,
-    quantiles: Estatsd.MetricQuantile,
+    quantiles: [], 
     all_values: [],
     flush_time: 0,
     last_flushed: 0
@@ -34,7 +34,8 @@ defmodule Estatsd.Metric do
     metric is not defined in the cache
     """
     def create_metric(key, value, type \\ :counter) do
-      %Estatsd.Metric{key: key,
+      %Estatsd.Metric {
+        key: key,
         last_value: value,
         all_values: [value],
         type: type,
@@ -49,23 +50,45 @@ defmodule Estatsd.Metric do
     Update a metric with a new value.
     This takes care of updating the list of values with the correct metadata
     """
-    def update(struct, value) do
+    @spec update(Map, Integer, Integer, List) :: Map
+    def update(struct, value, flush_interval, quantiles) do
       # TODO: make this more efficient?
       vals = struct.all_values ++ [value]
-      %Estatsd.Metric{key: struct.key,
+      metric = %Estatsd.Metric {
+        key: struct.key,
         type: struct.type,
         total_hits: struct.total_hits + 1,
-        last_value: update_last_value(struct, value),
+        #last_value: update_last_value(struct, value),
         values_per_second: struct.values_per_second,
         min_value: Enum.min(vals),
         max_value: Enum.max(vals),
         median_value: S.median(vals),
         # TODO: Use this struct
-        quantiles: %Estatsd.MetricQuantile{},
         all_values: vals,
         flush_time: struct.flush_time,
         last_flushed: struct.last_flushed
       }
+
+      process_metric(metric, value, flush_interval, quantiles)
+    end
+
+    def process_metric(metric, value, flush_interval, quantiles) do
+      case metric.type do
+        :counter ->
+          %{metric |
+            last_value: metric.last_value + value,
+            values_per_second: metric.last_value / flush_interval
+          }
+        :set ->
+          %{metric | last_value: update_last_value(metric, value)}
+        :timer ->
+          process_timer(metric, value, quantiles)
+        _ ->
+          metric
+      end
+    end
+
+    def process_timer(metric, value, quantiles) do
     end
 
     @doc """
@@ -75,6 +98,7 @@ defmodule Estatsd.Metric do
     def update_last_value(struct, value) do
       case struct.type do
         :counter -> struct.last_value + value
+        :set -> Enum.uniq(struct.all_metrics) |> Enum.count
         _ -> value
       end
     end
@@ -93,5 +117,13 @@ defmodule Estatsd.Metric do
       type = Map.fetch!(@metric_types, type)
       {float_value, _} = Float.parse(value)
       {name, float_value, type}
+    end
+
+    defp update_quantiles(metric, percentiles) do
+    end
+
+    defp update_quantile(quantile, percentile) do
+      p = percentile / 100
+      quantile = %Estatsd.MetricQuantile{}
     end
 end

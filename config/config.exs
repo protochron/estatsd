@@ -8,5 +8,6 @@ config :estatsd,
   port: 8125,
   debug: false,
   mode: :udp,
-  server_mode: :udp
+  server_mode: :udp,
+  flush_interval: 1000
 

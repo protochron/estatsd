@@ -22,5 +22,6 @@ defmodule Estatsd.Backend.GraphiteTest do
     assert graphite.set_prefix == "set"
     assert graphite.timer_prefix == "timer"
   end
+
 end
 

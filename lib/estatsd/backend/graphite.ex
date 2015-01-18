@@ -7,6 +7,7 @@ defmodule Estatsd.Backend.Graphite do
   defstruct global_prefix: "",
     global_suffix: "",
     flush_interval: 0.0,
+    flush_counts: false,
     counter_prefix: "counter",
     gauge_prefix: "gauge",
     set_prefix: "set",
@@ -30,7 +31,7 @@ defmodule Estatsd.Backend.Graphite do
   
   @spec new(Map) :: Map
   def new(config) do
-    start_time = Date.convert(Date.now, :secs)
+    start_time = timestamp
 
     global_prefix = config[:graphite][:global_prefix] || "stats"
     stats_prefix = config[:graphite][:stats_prefix] || "estatsd"
@@ -40,11 +41,11 @@ defmodule Estatsd.Backend.Graphite do
     timer_prefix = config[:graphite][:timer_prefix] || "timer"
     global_suffix = config[:graphite][:global_suffix] || ""
 
-    stats_namespace = Enum.join([global_prefix, stats_prefix], ".")
-    counter_namespace = [stats_namespace, counter_prefix]
-    gauge_namespace = [stats_namespace, gauge_prefix]
-    set_namespace = [stats_namespace, set_prefix]
-    timer_namespace = [stats_namespace, timer_prefix]
+    stats_namespace = join_string([global_prefix, stats_prefix])
+    counter_namespace = join_string([stats_namespace, counter_prefix])
+    gauge_namespace = join_string([stats_namespace, gauge_prefix])
+    set_namespace = join_string([stats_namespace, set_prefix])
+    timer_namespace = join_string([stats_namespace, timer_prefix])
 
     %Estatsd.Backend.Graphite {
       flush_interval: config[:flush_interval],
@@ -72,31 +73,30 @@ defmodule Estatsd.Backend.Graphite do
     #connection = Estatsd.Backend.Graphite.Connection(config[:mode])
   end
 
-  defp get_namespace(backend, namespace) do
-    global_namespace = backend.stats_namespace
+  def get_namespace(backend, namespace, key) do
     global_suffix = backend.global_suffix
     case namespace do
-      :counter -> join_string([global_namespace, "rate", global_suffix])
-      :set -> join_string([global_namespace, "count", global_suffix])
-      :gauge -> join_string([global_namespace, global_suffix])
+      :counter -> join_string([backend.counter_namespace, key, "rate", global_suffix])
+      :set -> join_string([backend.set_namespace, key, "count", global_suffix])
+      :gauge -> join_string([backend.gauge_namespace, key, global_suffix])
+      :timer -> join_string([backend.timer_namespace, key, global_suffix])
       # Handle this
       _ -> "error"
     end
   end
 
-  defp get_namespace(backend, namespace, key) do
-    global_namespace = backend.stats_namespace
-    global_suffix = backend.global_suffix
-    case namespace do
-      :timer -> join_string([global_namespace, key, global_suffix])
-    end
+  def stat_string(namespace, stat_value, timestamp) do
+    "#{namespace} #{stat_value} #{timestamp}"
   end
 
-  @spec join_string(List) :: String
+  defp timestamp do
+    Date.convert(Date.now, :secs)
+  end
+
+  #@spec join_string(List) :: String
   defp join_string(list) do
-    Enum.join(list, ".")
+    Enum.filter(list, fn(x) -> x != "" end) |> Enum.join(".")
   end
-
 
   # Backend server stuff
   def get_connection(mode) do

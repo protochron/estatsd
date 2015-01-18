@@ -13,9 +13,14 @@ defmodule Estatsd.Backend.GraphiteTest do
     {:ok, backend: backend, start_time: start_time}
   end
 
-  test "creates a Graphite backend", meta do
+  test "creates a Graphite backend" do
     graphite = Graphite.new([flush_interval: 60])
-    assert graphite == meta[:backend]
+    assert graphite.global_prefix == "stats"
+    assert graphite.global_suffix == ""
+    assert graphite.counter_prefix == "counter"
+    assert graphite.gauge_prefix == "gauge"
+    assert graphite.set_prefix == "set"
+    assert graphite.timer_prefix == "timer"
   end
 end
 

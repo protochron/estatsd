@@ -9,5 +9,6 @@ config :estatsd,
   debug: false,
   mode: :udp,
   server_mode: :udp,
-  flush_interval: 1000
+  flush_interval: 1000,
+  percentiles: [90]
 

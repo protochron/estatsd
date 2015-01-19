@@ -30,9 +30,9 @@
       datatype: :atom,
       default: :udp
     ],
-    "estatsd.percentile": [
+    "estatsd.percentiles": [
       doc: "The percentiles to keep track of for timers",
-      to: "estatsd.percentile",
+      to: "estatsd.percentiles",
       datatype: :list,
       default: [90], 
     ],

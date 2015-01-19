@@ -24,7 +24,7 @@ defmodule Estatsd.Metric do
     min_value: 0.0,
     max_value: 0.0,
     median_value: 0.0,
-    quantiles: [], 
+    percentiles: [], 
     all_values: [],
     flush_time: 0,
     last_flushed: 0
@@ -34,7 +34,7 @@ defmodule Estatsd.Metric do
     metric is not defined in the cache
     """
     def create_metric(key, value, type \\ :counter) do
-      %Estatsd.Metric {
+      metric = %Estatsd.Metric {
         key: key,
         last_value: value,
         all_values: [value],
@@ -51,7 +51,7 @@ defmodule Estatsd.Metric do
     This takes care of updating the list of values with the correct metadata
     """
     @spec update(Map, Integer, Integer, List) :: Map
-    def update(struct, value, flush_interval, quantiles) do
+    def update(struct, value, flush_interval, percentiles) do
       # TODO: make this more efficient?
       vals = struct.all_values ++ [value]
       metric = %Estatsd.Metric {
@@ -66,13 +66,14 @@ defmodule Estatsd.Metric do
         # TODO: Use this struct
         all_values: vals,
         flush_time: struct.flush_time,
-        last_flushed: struct.last_flushed
+        last_flushed: struct.last_flushed,
+        percentiles: []
       }
 
-      process_metric(metric, value, flush_interval, quantiles)
+      process_metric(metric, value, flush_interval, percentiles)
     end
 
-    def process_metric(metric, value, flush_interval, quantiles) do
+    def process_metric(metric, value, flush_interval, percentiles) do
       case metric.type do
         :counter ->
           %{metric |
@@ -82,13 +83,15 @@ defmodule Estatsd.Metric do
         :set ->
           %{metric | last_value: update_last_value(metric, value)}
         :timer ->
-          process_timer(metric, value, quantiles)
+          process_timer(metric, percentiles)
         _ ->
           metric
       end
     end
 
-    def process_timer(metric, value, quantiles) do
+    def process_timer(metric, percentiles) do
+      percentiles = Enum.reduce(percentiles, [], fn(p, acc) -> Estatsd.MetricPercentile.create(metric.all_values, p) end)
+      %{ metric | percentiles: percentiles}
     end
 
     @doc """
@@ -98,7 +101,7 @@ defmodule Estatsd.Metric do
     def update_last_value(struct, value) do
       case struct.type do
         :counter -> struct.last_value + value
-        :set -> Enum.uniq(struct.all_metrics) |> Enum.count
+        :set -> Enum.uniq(struct.all_values) |> Enum.count
         _ -> value
       end
     end
@@ -117,13 +120,5 @@ defmodule Estatsd.Metric do
       type = Map.fetch!(@metric_types, type)
       {float_value, _} = Float.parse(value)
       {name, float_value, type}
-    end
-
-    defp update_quantiles(metric, percentiles) do
-    end
-
-    defp update_quantile(quantile, percentile) do
-      p = percentile / 100
-      quantile = %Estatsd.MetricQuantile{}
     end
 end

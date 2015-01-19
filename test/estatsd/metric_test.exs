@@ -41,16 +41,35 @@ defmodule Estatsd.MetricTest do
     assert Metric.create_metric("test.metric", 0.1, :counter) == simple_counter
   end
 
-  test "updates a metric" do
-    updated_metric = Metric.update(simple_counter, 0.2, 60, [90])
+  test "updates a counter" do
+    updated_metric = Metric.update(simple_counter, 0.2, 1000, [90])
     assert updated_metric != simple_counter
     # You can't always assume that floating point math gives you the same value, so compare against the string representation instead
     last_value = Float.to_string(updated_metric.last_value, [decimals: 2, compact: true])
-    assert last_value == "0.3"
+    assert last_value == "0.2"
     median_value = Float.to_string(updated_metric.median_value, [decimals: 2])
     assert median_value == "0.15"
 
     assert updated_metric.all_values == [0.1, 0.2]
     assert updated_metric.min_value == 0.1
+    assert updated_metric.max_value == 0.2
+  end
+
+  test "updates a gauge" do
+    gauge = Metric.create_metric("test.metric", 0.1, :gauge)
+    updated_gauge = Metric.update(gauge, 0.2, 1000, [90])
+    assert updated_gauge.all_values == [0.1, 0.2]
+  end
+
+  test "updates a set" do 
+    set = Metric.create_metric("test.metric", 0.1, :set)
+    updated_set = Metric.update(set, 0.2, 1000, [90])
+    assert updated_set.all_values == [0.1, 0.2]
+    assert updated_set.last_value == 2
+  end
+
+  test "updates a timer" do
+    timer = Metric.create_metric("test.metric", 0.1, :timer)
+    updated_timer = Metric.update(timer, 0.2, 1000, [90, 95])
   end
 end

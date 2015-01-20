@@ -11,11 +11,11 @@ defmodule Estatsd.MetricPercentile do
     sum: 0.0
 
   def create(values, percentile) do
-    percentile = S.percentile(values, percentile)
-    vals = Enum.filter(values, fn(x) -> x <= percentile end)
+    boundary = S.percentile(values, percentile)
+    vals = Enum.filter(values, fn(x) -> x <= boundary end)
     %Estatsd.MetricPercentile {
       percentile: percentile,
-      boundary: percentile,
+      boundary: boundary,
       all_values: values,
       mean: S.mean(vals),
       median: S.median(vals),

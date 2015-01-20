@@ -12,7 +12,6 @@ defmodule Estatsd.Metric do
   @namespace_seperator ":"
   @type_seperator "|"
 
-
   @doc """
   Struct definition
   """
@@ -90,8 +89,9 @@ defmodule Estatsd.Metric do
     end
 
     def process_timer(metric, percentiles) do
-      percentiles = Enum.reduce(percentiles, [], fn(p, acc) -> Estatsd.MetricPercentile.create(metric.all_values, p) end)
-      %{ metric | percentiles: percentiles}
+      percentiles = Enum.reduce(percentiles, [], fn(p, acc) -> 
+        acc ++ [Estatsd.MetricPercentile.create(metric.all_values, p)] end)
+      %{metric | percentiles: percentiles}
     end
 
     @doc """

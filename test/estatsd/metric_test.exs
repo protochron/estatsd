@@ -71,5 +71,6 @@ defmodule Estatsd.MetricTest do
   test "updates a timer" do
     timer = Metric.create_metric("test.metric", 0.1, :timer)
     updated_timer = Metric.update(timer, 0.2, 1000, [90, 95])
+    assert Enum.count(updated_timer.percentiles) == 2
   end
 end

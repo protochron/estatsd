@@ -10,18 +10,21 @@ defmodule Estatsd.MetricTest do
       total_hits: 1,
       max_value: 0.1,
       min_value: 0.1,
-      median_value: 0.1
+      median_value: 0.1,
+      sample_rate: 1.0
     }
   end
 
   test "correctly parses a metric" do
-    metrics = %{"test.metric:0.1|c" => {"test.metric", 0.1, :counter},
+    metrics = %{"test.metric:0.1|c" => {"test.metric", 0.1, :counter, 1.0},
+      "test.metric:0.1|c|@0.9" => {"test.metric", 0.1, :counter, 0.9},
       "test.metric:0.1|g" => {"test.metric", 0.1, :gauge},
       "test.metric:0.1|s" => {"test.metric", 0.1, :set},
       "test.metric:0.1|t" => {"test.metric", 0.1, :timer}
     }
     for {metric_string, value} <- metrics do
       assert Metric.parse_metric!(metric_string) == value
+
     end
   end
 

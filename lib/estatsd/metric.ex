@@ -11,6 +11,7 @@ defmodule Estatsd.Metric do
   @metric_types %{"c" => :counter, "g" => :gauge, "t" => :timer, "s" => :set}
   @namespace_seperator ":"
   @type_seperator "|"
+  @sample_seperator "@"
 
   @doc """
   Struct definition
@@ -26,23 +27,32 @@ defmodule Estatsd.Metric do
     percentiles: [], 
     all_values: [],
     flush_time: 0,
-    last_flushed: 0
+    last_flushed: 0,
+    sample_rate: 0.0
 
     @doc """
     A simple way to create a metric for the first time. This is meant to be called when a
     metric is not defined in the cache
     """
     @spec create_metric(String, Integer, Atom) :: Map
-    def create_metric(key, value, type \\ :counter) do
+    def create_metric(key, value, type \\ :counter, sample_rate \\ 1.0) do
+      cond do
+        sample_rate < 1.0 ->
+          total_hits = 1.0 / sample_rate
+        true ->
+          total_hits = 1
+      end
+
       %Estatsd.Metric {
         key: key,
         last_value: value,
         all_values: [value],
         type: type,
-        total_hits: 1,
+        total_hits: total_hits,
         min_value: value,
         max_value: value,
-        median_value: value
+        median_value: value,
+        sample_rate: sample_rate
       }
     end
 
@@ -51,8 +61,10 @@ defmodule Estatsd.Metric do
     """
     @spec create_metric(Tuple) :: Map
     def create_metric(parsed_string) do
-      {key, value, type} = parsed_string
-      create_metric(key, value, type)
+      case parsed_string do
+        {key, value, type} -> create_metric(key, value, type)
+        {key, value, type, sample_rate} -> create_metric(key, value, type, sample_rate)
+      end
     end
 
     @doc """
@@ -120,15 +132,33 @@ defmodule Estatsd.Metric do
 
     A correctly formatted string resembles the following:
         
-        '<metric_name>:<value>|<type>'
-    Raise an exception if any of the fields are incorrect.
+        '<metric_name>:<value>|<type>|<sample_rate>'
+
+    The sample_rate is only used for counters.
+    Raises an exception if any of the fields are incorrect.
     """
-    @spec parse_metric!(Map) :: String
+    @spec parse_metric!(String) :: Map
     def parse_metric!(metric) do
+      sample_rate = 1.0
+      value = nil
+      type = nil
       [name, value] = String.split(metric, @namespace_seperator)
-      [value, type] = String.split(value, @type_seperator)
+      case String.split(value, @type_seperator) do
+        [v, t, rate] ->
+          {sample_rate, _} = String.replace(rate, ~r/@/, "") |> Float.parse
+          value = v
+          type = t
+        [v, t] ->
+          value = v
+          type = t
+      end
       type = Map.fetch!(@metric_types, type)
       {float_value, _} = Float.parse(value)
-      {name, float_value, type}
+      case type do
+        :counter ->
+          {name, float_value, type, sample_rate}
+        _ ->
+          {name, float_value, type}
+      end
     end
 end

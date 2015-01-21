@@ -3,7 +3,7 @@ defmodule Estatsd.CacheTest do
 
   setup do
     {:ok, cache} = Estatsd.Cache.start_link
-    sample_metric = Estatsd.Metric.create_metric("test.metric", 0.1)
+    sample_metric = Estatsd.Metric.create_metric("test.metric", 0.1, :gauge)
     {:ok, cache: cache, metric: sample_metric}
   end
 

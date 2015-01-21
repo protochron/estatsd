@@ -10,6 +10,10 @@ defmodule Estatsd.MetricPercentile do
     max: 0.0,
     sum: 0.0
 
+  @doc """
+  Create a MetricPercentile struct
+  """
+  @spec create(List, List) :: Map
   def create(values, percentile) do
     boundary = S.percentile(values, percentile)
     vals = Enum.filter(values, fn(x) -> x <= boundary end)

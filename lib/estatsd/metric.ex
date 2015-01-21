@@ -32,6 +32,7 @@ defmodule Estatsd.Metric do
     A simple way to create a metric for the first time. This is meant to be called when a
     metric is not defined in the cache
     """
+    @spec create_metric(String, Integer, Atom) :: Map
     def create_metric(key, value, type \\ :counter) do
       metric = %Estatsd.Metric {
         key: key,
@@ -57,7 +58,7 @@ defmodule Estatsd.Metric do
         key: struct.key,
         type: struct.type,
         total_hits: struct.total_hits + 1,
-        #last_value: update_last_value(struct, value),
+        last_value: value,
         values_per_second: struct.values_per_second,
         min_value: Enum.min(vals),
         max_value: Enum.max(vals),
@@ -72,38 +73,37 @@ defmodule Estatsd.Metric do
       process_metric(metric, value, flush_interval, percentiles)
     end
 
+    @doc """
+    Update specific portions of the struct depending on the type of metric
+    """
+    @spec process_metric(Map, Integer, Integer, List) :: Map
     def process_metric(metric, value, flush_interval, percentiles) do
       case metric.type do
         :counter ->
           %{metric |
-            last_value: metric.last_value + value,
+            last_value: metric.last_value + (metric.last_value * metric.total_hits),
             values_per_second: metric.last_value / flush_interval
           }
         :set ->
-          %{metric | last_value: update_last_value(metric, value)}
+          %{metric | last_value: Enum.uniq(metric.all_values) |> Enum.count}
         :timer ->
-          process_timer(metric, percentiles)
+          process_timer(metric, percentiles, flush_interval)
         _ ->
-          metric
+          %{metric | last_value: value}
       end
-    end
-
-    def process_timer(metric, percentiles) do
-      percentiles = Enum.reduce(percentiles, [], fn(p, acc) -> 
-        acc ++ [Estatsd.MetricPercentile.create(metric.all_values, p)] end)
-      %{metric | percentiles: percentiles}
     end
 
     @doc """
-    Take care of any special cases that exist when updating the
-    last_value field of an Estatsd.Metric
+    Update the percentiles for the timer
     """
-    def update_last_value(struct, value) do
-      case struct.type do
-        :counter -> struct.last_value + value
-        :set -> Enum.uniq(struct.all_values) |> Enum.count
-        _ -> value
-      end
+    @spec process_timer(Map, List, Integer) :: Map
+    def process_timer(metric, percentiles, flush_interval) do
+      percentiles = Enum.reduce(percentiles, [], fn(p, acc) -> 
+        acc ++ [Estatsd.MetricPercentile.create(metric.all_values, p)] end)
+      %{metric | 
+        percentiles: percentiles,
+        values_per_second: metric.last_value / flush_interval
+      }
     end
 
     @doc """
@@ -114,6 +114,7 @@ defmodule Estatsd.Metric do
         '<metric_name>:<value>|<type>'
     Raise an exception if any of the fields are incorrect.
     """
+    @spec parse_metric!(Map) :: String
     def parse_metric!(metric) do
       [name, value] = String.split(metric, @namespace_seperator)
       [value, type] = String.split(value, @type_seperator)

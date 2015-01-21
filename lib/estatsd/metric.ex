@@ -34,7 +34,7 @@ defmodule Estatsd.Metric do
     """
     @spec create_metric(String, Integer, Atom) :: Map
     def create_metric(key, value, type \\ :counter) do
-      metric = %Estatsd.Metric {
+      %Estatsd.Metric {
         key: key,
         last_value: value,
         all_values: [value],
@@ -44,6 +44,15 @@ defmodule Estatsd.Metric do
         max_value: value,
         median_value: value
       }
+    end
+
+    @doc """
+    Create a metric from a previously parsed metric string
+    """
+    @spec create_metric(Tuple) :: Map
+    def create_metric(parsed_string) do
+      {key, value, type} = parsed_string
+      create_metric(key, value, type)
     end
 
     @doc """

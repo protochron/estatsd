@@ -14,9 +14,15 @@ defmodule Estatsd.MetricTest do
     }
   end
 
-  test "parses a metric" do
-    good_metric = "test.metric:0.1|c"
-    assert Metric.parse_metric!(good_metric) == {"test.metric", 0.1, :counter}
+  test "correctly parses a metric" do
+    metrics = %{"test.metric:0.1|c" => {"test.metric", 0.1, :counter},
+      "test.metric:0.1|g" => {"test.metric", 0.1, :gauge},
+      "test.metric:0.1|s" => {"test.metric", 0.1, :set},
+      "test.metric:0.1|t" => {"test.metric", 0.1, :timer}
+    }
+    for {metric_string, value} <- metrics do
+      assert Metric.parse_metric!(metric_string) == value
+    end
   end
 
   test "fails to parse a bad metric" do
@@ -41,6 +47,11 @@ defmodule Estatsd.MetricTest do
     metric = Metric.create_metric("test.metric", 0.1, :counter) 
     assert metric == simple_counter
     assert metric.last_value == 0.1
+  end
+
+  test "creates a metric from a string" do
+    metric = Metric.create_metric(Metric.parse_metric!("test.metric:0.1|c"))
+    assert metric == simple_counter
   end
 
   test "updates a counter" do

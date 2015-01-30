@@ -55,7 +55,6 @@ defmodule Estatsd.Metric do
         sample_rate: sample_rate
       }
     end
-
     @doc """
     Create a metric from a previously parsed metric string
     """
@@ -84,13 +83,11 @@ defmodule Estatsd.Metric do
         min_value: Enum.min(vals),
         max_value: Enum.max(vals),
         median_value: S.median(vals),
-        # TODO: Use this struct
         all_values: vals,
         flush_time: struct.flush_time,
         last_flushed: struct.last_flushed,
         percentiles: []
       }
-
       process_metric(metric, value, flush_interval, percentiles)
     end
 

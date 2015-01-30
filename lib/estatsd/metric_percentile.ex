@@ -16,7 +16,7 @@ defmodule Estatsd.MetricPercentile do
   @spec create(List, List) :: Map
   def create(values, percentile) do
     boundary = S.percentile(values, percentile)
-    vals = Enum.filter(values, fn(x) -> x <= boundary end)
+    vals = Enum.filter(values, fn(x) -> x >= boundary end)
     %Estatsd.MetricPercentile {
       percentile: percentile,
       boundary: boundary,

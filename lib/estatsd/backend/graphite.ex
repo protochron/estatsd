@@ -73,6 +73,7 @@ defmodule Estatsd.Backend.Graphite do
     #connection = Estatsd.Backend.Graphite.Connection(config[:mode])
   end
 
+  @spec get_namespace(Map, String, String) :: String
   def get_namespace(backend, namespace, key) do
     global_suffix = backend.global_suffix
     case namespace do
@@ -85,6 +86,7 @@ defmodule Estatsd.Backend.Graphite do
     end
   end
 
+  @spec stat_string(String, Integer, Integer) :: String
   def stat_string(namespace, stat_value, timestamp) do
     "#{namespace} #{stat_value} #{timestamp}"
   end

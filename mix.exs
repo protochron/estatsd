@@ -15,10 +15,10 @@ defmodule Estatsd.Mixfile do
   end
 
   defp deps do
-    [ {:statistics, "~> 0.2.1"},
-     {:timex, "~> 0.13.3"},
-     {:exrm, "~> 0.14.16"},
-     {:earmark, "~> 0.1.12", only: :dev},
+    [ {:statistics, "~> 0.3.1"},
+     {:timex, "~> 1.0.0-rc1"},
+     {:exrm, "~> 0.19.9"},
+     {:earmark, "~> 0.1.17"},
      {:ex_doc, "~> 0.7.0", only: :dev}
     ]
   end
